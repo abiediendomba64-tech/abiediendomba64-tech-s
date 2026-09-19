@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Sistem Usaha Ayam Potong",
+  "description": "Sistem operasional terpadu multi-role (Owner, Admin, Akuntan, Sales, Karyawan, HR) dengan mesin transaksi otomatis, sinkronisasi Google Sheets, dan enkripsi data.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
