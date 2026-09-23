@@ -66,13 +66,12 @@ export default function App() {
   const handleUpdateRolePin = async (roleKey: string, newPin: string) => {
     if (!state) return;
     try {
+      if (!state.syncSettings.rolePins) {
+        throw new Error('Role PIN belum dikonfigurasi di backend. Tidak ada PIN default yang digunakan.');
+      }
+
       const updatedPins = {
-        ...(state.syncSettings.rolePins || {
-          owner: '8888',
-          akuntan: '7777',
-          admin: '1234',
-          kasir: '0000'
-        }),
+        ...state.syncSettings.rolePins,
         [roleKey]: newPin
       };
 
