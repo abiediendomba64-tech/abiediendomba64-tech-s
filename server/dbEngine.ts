@@ -635,57 +635,39 @@ const initialTaskWorks: EmployeeTaskWork[] = [
 
 const initialSyncSettings: SyncSettings = {
   googleSheets: {
-    enabled: true,
-    spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+    enabled: false,
+    spreadsheetId: '',
     sheetNamePrefix: 'AYAM_SISTEM_',
-    autoSync: true,
-    lastSyncTime: new Date().toISOString(),
-    status: 'connected',
-    syncSummary: {
-      sheetsUpdated: 15,
-      recordsSynced: 142,
-      timestamp: new Date().toISOString()
-    }
+    autoSync: false,
+    status: 'idle'
   },
   cloudflare: {
-    enabled: true,
-    workerUrl: 'https://gajih-sync.ebeldavid424.workers.dev/api/sync',
-    authSecret: 'cf-sec-ebeldavid-424-live-sync-ok',
-    lastSyncTime: new Date().toISOString(),
-    status: 'connected',
-    customDomain: 'pos.gemaabadifarm.com'
+    enabled: false,
+    workerUrl: '',
+    authSecret: '',
+    status: 'idle'
   },
   github: {
-    enabled: true,
-    repoUrl: 'https://github.com/gemaabadifarm/sistem-ayam-potong',
+    enabled: false,
+    repoUrl: '',
     branch: 'main',
-    token: 'ghp_live_backup_token_configured',
-    autoBackup: true,
-    lastBackupTime: new Date().toISOString()
-  },
-  rolePins: {
-    owner: '8888',
-    akuntan: '7777',
-    admin: '1234',
-    kasir: '0000'
+    token: '',
+    autoBackup: false
   },
   whatsApp: {
-    enabled: true,
-    ownerPhone: '6281234567890',
-    akuntanPhone: '6281298765432',
-    targetGroupName: 'Grup WA Operasional & Keuangan Farm',
-    targetGroupLink: 'https://chat.whatsapp.com/GemaAbadiFarmSync',
-    apiKey: 'wa_live_ebeldavid_notifier_token',
-    autoSendReceipt: true,
-    autoSendDailyRecap: true,
-    lastNotifTime: new Date().toISOString()
+    enabled: false,
+    ownerPhone: '',
+    akuntanPhone: '',
+    targetGroupName: '',
+    autoSendReceipt: false,
+    autoSendDailyRecap: false
   },
   encryption: {
-    enabled: true,
-    algorithm: 'AES-GCM-256',
-    masterKeyFingerprint: 'SHA256:7f8e9a2b1c4d5e6f0a1b2c3d4e5f6a7b8c9d0e1f',
-    deviceName: 'Central Production Server (Node.js)',
-    activeNodes: 4
+    enabled: false,
+    algorithm: 'AES-256-GCM',
+    masterKeyFingerprint: '',
+    deviceName: '',
+    activeNodes: 0
   }
 };
 
@@ -1586,13 +1568,8 @@ class DatabaseEngine {
 
   // Timestamp trigger for sync & disk persistence
   private touchSync() {
-    this.data.syncSettings.googleSheets.lastSyncTime = new Date().toISOString();
-    this.data.syncSettings.googleSheets.status = 'connected';
-    if (this.data.syncSettings.googleSheets.syncSummary) {
-      this.data.syncSettings.googleSheets.syncSummary.timestamp = new Date().toISOString();
-      this.data.syncSettings.googleSheets.syncSummary.recordsSynced += 1;
-    }
-    this.data.syncSettings.cloudflare.lastSyncTime = new Date().toISOString();
+    // Local persistence only. External sync status must only be updated by a
+    // provider integration after a real API call succeeds.
     this.saveToDisk();
   }
 

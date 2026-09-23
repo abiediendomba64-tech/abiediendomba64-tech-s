@@ -64,18 +64,16 @@ export const RoleSecurityModal: React.FC<Props> = ({
     requiredRoleKey = 'admin';
   }
 
-  const defaultPins = {
-    owner: '8888',
-    akuntan: '7777',
-    admin: '1234',
-    kasir: '0000',
-    ...configuredPins
-  };
-
-  const expectedPin = defaultPins[requiredRoleKey];
+  const expectedPin = configuredPins?.[requiredRoleKey];
 
   const handleVerify = () => {
-    if (pin === expectedPin || pin === defaultPins.owner) { // Master owner pin can unlock any
+    if (!expectedPin) {
+      setErrorMsg('Akses belum dikonfigurasi di backend. Tidak ada PIN default/master yang boleh membuka menu.');
+      setPin('');
+      return;
+    }
+
+    if (pin === expectedPin) {
       setErrorMsg(null);
       setPin('');
       const mappedRole: UserRole = 
@@ -87,7 +85,7 @@ export const RoleSecurityModal: React.FC<Props> = ({
       onSuccess(mappedRole, targetPage);
       onClose();
     } else {
-      setErrorMsg(`PIN Tidak Sesuai! Akses ditolak demi keamanan audit data.`);
+      setErrorMsg('PIN Tidak Sesuai! Akses ditolak.');
       setPin('');
     }
   };
@@ -242,53 +240,23 @@ export const RoleSecurityModal: React.FC<Props> = ({
                 <KeyRound className="w-3.5 h-3.5 text-amber-700" />
                 Referensi Kunci Akses Standar:
               </span>
-              <button
-                type="button"
-                onClick={() => setIsChangingPin(!isChangingPin)}
-                className="text-[10px] text-amber-800 underline hover:text-amber-950 font-semibold cursor-pointer"
-              >
-                {isChangingPin ? 'Batal' : 'Ganti PIN'}
-              </button>
+              <span className="text-[10px] text-stone-500 font-semibold">Dikelola backend</span>
             </div>
             <div className="grid grid-cols-2 gap-1.5 font-mono text-[11px] text-stone-700 pt-0.5">
               <div className="bg-white/90 px-2 py-1 rounded-md border border-amber-200 flex justify-between">
-                <span>Owner:</span> <strong className="text-amber-950">{defaultPins.owner}</strong>
+                <span>Owner:</span> <strong className="text-amber-950">{configuredPins?.owner ? '••••' : 'Belum dikonfigurasi'}</strong>
               </div>
               <div className="bg-white/90 px-2 py-1 rounded-md border border-amber-200 flex justify-between">
-                <span>Akuntan:</span> <strong className="text-amber-950">{defaultPins.akuntan}</strong>
+                <span>Akuntan:</span> <strong className="text-amber-950">{configuredPins?.akuntan ? '••••' : 'Belum dikonfigurasi'}</strong>
               </div>
               <div className="bg-white/90 px-2 py-1 rounded-md border border-amber-200 flex justify-between">
-                <span>Admin:</span> <strong className="text-amber-950">{defaultPins.admin}</strong>
+                <span>Admin:</span> <strong className="text-amber-950">{configuredPins?.admin ? '••••' : 'Belum dikonfigurasi'}</strong>
               </div>
               <div className="bg-white/90 px-2 py-1 rounded-md border border-amber-200 flex justify-between">
-                <span>Kasir:</span> <strong className="text-amber-950">{defaultPins.kasir}</strong>
+                <span>Kasir:</span> <strong className="text-amber-950">{configuredPins?.kasir ? '••••' : 'Belum dikonfigurasi'}</strong>
               </div>
             </div>
           </div>
-
-          {/* Change PIN Section */}
-          {isChangingPin && (
-            <div className="p-3 bg-stone-100 rounded-xl border border-stone-300 space-y-2 text-xs">
-              <span className="font-bold text-stone-800 block">Ubah PIN Akses ({requiredRoleKey.toUpperCase()}):</span>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  maxLength={6}
-                  placeholder="PIN Baru (4-6 angka)"
-                  value={newPinInput}
-                  onChange={(e) => setNewPinInput(e.target.value.replace(/\D/g, ''))}
-                  className="flex-1 px-3 py-1.5 bg-white border border-stone-300 rounded-lg text-xs"
-                />
-                <button
-                  type="button"
-                  onClick={handleSaveNewPin}
-                  className="px-3 py-1.5 bg-stone-900 text-white rounded-lg font-bold text-xs cursor-pointer hover:bg-stone-800"
-                >
-                  Simpan PIN
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2 pt-1">

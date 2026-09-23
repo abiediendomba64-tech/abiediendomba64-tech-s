@@ -13,7 +13,7 @@ async function startServer() {
   app.get('/api/health', (req, res) => {
     res.json({
       status: 'ok',
-      service: 'Sistem Usaha Ayam Potong API',
+      service: 'Sistem Usaha Ayam Potong API (local persistence)',
       timestamp: new Date().toISOString()
     });
   });
@@ -302,7 +302,9 @@ async function startServer() {
 
       res.json({
         success: true,
-        status: 'sent_or_ready',
+        sent: false,
+        status: 'ready_to_open',
+        message: 'Pesan belum dikirim oleh server. URL ini hanya membuka WhatsApp/click-to-chat.',
         waUrl,
         timestamp: new Date().toISOString()
       });
@@ -333,19 +335,12 @@ async function startServer() {
   });
 
   // Google Sheets Push / Trigger
-  app.post('/api/sync/sheets/push', (req, res) => {
-    try {
-      const payload = dbEngine.generateSheetsPayload();
-      res.json({
-        success: true,
-        message: 'Data berhasil disinkronisasi ke Google Sheets',
-        syncedAt: new Date().toISOString(),
-        sheets: Object.keys(payload.sheets),
-        totalSheets: Object.keys(payload.sheets).length
-      });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
-    }
+  app.post('/api/sync/sheets/push', (_req, res) => {
+    res.status(503).json({
+      success: false,
+      code: 'GOOGLE_SHEETS_NOT_CONFIGURED',
+      error: 'Google Sheets API belum dikonfigurasi. Gunakan /api/sync/sheets/export untuk ekspor payload; jangan menampilkan status tersinkron sebelum API benar-benar berhasil.'
+    });
   });
 
   // Google Sheets Export full 15 sheets
@@ -359,18 +354,12 @@ async function startServer() {
   });
 
   // Cloudflare Workers & Pages sync endpoint
-  app.post('/api/sync/cloudflare', (req, res) => {
-    try {
-      const { payload } = req.body;
-      res.json({
-        success: true,
-        status: 'synced_to_cloudflare_edge',
-        timestamp: new Date().toISOString(),
-        edgeNode: 'sin01-singapore-cf'
-      });
-    } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
-    }
+  app.post('/api/sync/cloudflare', (_req, res) => {
+    res.status(503).json({
+      success: false,
+      code: 'CLOUDFLARE_SYNC_NOT_CONFIGURED',
+      error: 'Cloudflare sync provider belum dikonfigurasi. Server tidak lagi mengklaim data sudah tersinkron tanpa request API yang berhasil.'
+    });
   });
 
   // Sync settings update
@@ -384,19 +373,12 @@ async function startServer() {
   });
 
   // E2E Encryption Verification Endpoint
-  app.post('/api/crypto/verify', (req, res) => {
-    try {
-      const { cipherText, iv, tag } = req.body;
-      res.json({
-        success: true,
-        verified: true,
-        algorithm: 'AES-256-GCM',
-        fingerprint: 'SHA256:7f8e9a2b1c4d5e6f0a1b2c3d4e5f6a7b8c9d0e1f',
-        integrityCheck: 'PASSED'
-      });
-    } catch (err: any) {
-      res.status(400).json({ success: false, error: err.message });
-    }
+  app.post('/api/crypto/verify', (_req, res) => {
+    res.status(503).json({
+      success: false,
+      code: 'CRYPTO_VERIFICATION_NOT_CONFIGURED',
+      error: 'Verifikasi AES-GCM belum memiliki key material/implementation yang benar. Server tidak lagi mengembalikan verified=true secara palsu.'
+    });
   });
 
   // Vite middleware for development vs static in production
