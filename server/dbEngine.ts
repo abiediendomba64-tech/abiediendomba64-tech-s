@@ -1515,7 +1515,7 @@ class DatabaseEngine {
       if (cust) custPhone = (cust.noHp || '').replace(/\D/g, '');
     }
     if (custPhone.startsWith('0')) custPhone = '62' + custPhone.slice(1);
-    if (!custPhone) custPhone = this.data.syncSettings.whatsApp?.ownerPhone || '6281234567890';
+    if (!custPhone) custPhone = this.data.syncSettings.whatsApp?.ownerPhone || '';
 
     const itemsText = order.items.map(i => `• ${i.namaProduk}: ${i.kg} kg x Rp ${i.hargaPerKg.toLocaleString('id-ID')} = Rp ${i.subtotal.toLocaleString('id-ID')}`).join('\n');
 
@@ -1544,8 +1544,8 @@ class DatabaseEngine {
     const biayaKeluar = this.data.cashTransactions.filter(c => c.tipe === 'keluar').reduce((sum, c) => sum + c.jumlah, 0);
     const totalStokKg = this.data.stocks.reduce((sum, s) => sum + (s.kategori !== 'ayam_hidup' ? s.stokKg : 0), 0);
 
-    const groupName = this.data.syncSettings.whatsApp?.targetGroupName || 'Grup WA Operasional & Keuangan Farm';
-    const ownerPhone = this.data.syncSettings.whatsApp?.ownerPhone || '6281234567890';
+    const groupName = this.data.syncSettings.whatsApp?.targetGroupName || '';
+    const ownerPhone = this.data.syncSettings.whatsApp?.ownerPhone || '';
 
     const text = `📊 *LAPORAN REKAPITULASI HARIAN*\n*GEMA ABADI FARM - SISTEM AYAM POTONG*\n🗓 ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\n----------------------------------------\n💰 *Total Omset Penjualan:* Rp ${totalOmzet.toLocaleString('id-ID')}\n⚖️ *Total Karkas Terjual:* ${totalKgKarkas.toFixed(1)} kg\n💵 *Kas Masuk Toko/Bank:* Rp ${kasTunaiMasuk.toLocaleString('id-ID')}\n💳 *Total Piutang Berjalan:* Rp ${this.data.customers.reduce((sum, c) => sum + c.sisaPiutang, 0).toLocaleString('id-ID')}\n💸 *Pengeluaran Beban:* Rp ${biayaKeluar.toLocaleString('id-ID')}\n🐔 *Sisa Stok Karkas Gudang:* ${totalStokKg.toFixed(1)} kg\n----------------------------------------\n✅ *Status:* Terintegrasi Database & Cloudflare Edge\n_Laporan otomatis dikirim untuk Owner & Akuntan_`;
 
@@ -1586,7 +1586,7 @@ class DatabaseEngine {
           totalKasTersedia: (this.data.accounts.find(a => a.kode === '1101')?.saldo || 0) + (this.data.accounts.find(a => a.kode === '1102')?.saldo || 0),
           totalPiutangUsaha: this.data.customers.reduce((sum, c) => sum + c.sisaPiutang, 0),
           totalUtangSupplier: this.data.suppliers.reduce((sum, s) => sum + s.totalHutang, 0),
-          statusSistem: 'ONLINE_ACTIVE'
+          statusSistem: 'LOCAL_ONLY'
         },
         '02_MASTER_CUSTOMER': this.data.customers,
         '03_MASTER_PRODUK': this.data.stocks,
@@ -1606,9 +1606,9 @@ class DatabaseEngine {
           labaKotor: (this.data.accounts.find(a => a.kode === '4101')?.saldo || 0) - (this.data.accounts.find(a => a.kode === '5101')?.saldo || 0)
         },
         '15_DASHBOARD': {
-          syncStatus: 'SYNCHRONIZED',
-          lastSync: new Date().toISOString(),
-          e2eeEncrypted: this.data.syncSettings.encryption.enabled
+          syncStatus: 'NOT_SYNCED',
+          lastSync: null,
+          e2eeEncrypted: false
         }
       }
     };
